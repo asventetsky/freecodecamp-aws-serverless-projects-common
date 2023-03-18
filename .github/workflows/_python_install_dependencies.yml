@@ -21,8 +21,16 @@ jobs:
 
       - name: "📦 install dependencies"
         run: |
-          chmod +x .github/workflows/scripts/install_dependencies.sh && \
-          .github/workflows/scripts/install_dependencies.sh "${{ inputs.application }}/source"
+          SOURCE_DIR="${{ inputs.application }}/source"
+
+          cd $SOURCE_DIR || exit
+
+          echo "Installing dependencies."
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          deactivate
+          echo "Dependencies have been successfully installed."
 
       - name: "💾 save project dependencies"
         uses: actions/cache@v3
