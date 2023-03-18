@@ -40,8 +40,30 @@ jobs:
 
       - name: "🔍 run build"
         run: |
-          chmod +x .github/workflows/scripts/build.sh && \
-          .github/workflows/scripts/build.sh "${{ inputs.application }}" "${{ inputs.lambda-source-dir }}" "${{ inputs.files-folders-to-add }}" "${{ steps.construct-lambda-artifact-name.outputs.name }}"
+          APP="${{ inputs.application }}"
+          LAMBDA_SOURCE_DIR="${{ inputs.lambda-source-dir }}"
+          FILES_FOLDERS_TO_ADD="${{ inputs.files-folders-to-add }}"
+          LAMBDA_ARTIFACT_NAME="${{ steps.construct-lambda-artifact-name.outputs.name }}"
+
+          cd "${APP}"/source || exit
+
+          echo "Creating a directory for artifact."
+          mkdir target
+
+          echo "Creating a package with dependencies."
+          (
+            cd venv/lib/python3.9/site-packages/ || exit
+            zip -q -r ../../../../target/"${LAMBDA_ARTIFACT_NAME}" .
+          )
+
+          echo "Adding source code to the package."
+          (
+            cd $LAMBDA_SOURCE_DIR || exit
+            zip -q -g ../target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+          )
+
+          echo "Created artifact."
+          ls -l target/"${LAMBDA_ARTIFACT_NAME}"
 
       - name: "💾 save lambda artifact"
         uses: actions/cache@v3
