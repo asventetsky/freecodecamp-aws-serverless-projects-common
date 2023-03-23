@@ -10,12 +10,18 @@ on:
       files-folders-to-add:
         required: true
         type: string
+    outputs:
+      lambda-artifact-name:
+        description: "Constructed name of the lambda artifact"
+        value: ${{ jobs.build.outputs.lambda-artifact-name }}
 
 jobs:
   build:
     name: Build application
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      lambda-artifact-name: ${{ steps.construct-lambda-artifact-name.outputs.name }}
     steps:
       - name: "☁️ checkout repository"
         uses: actions/checkout@v3
@@ -70,6 +76,3 @@ jobs:
         with:
           key: lambda-${{ inputs.lambda-source-dir }}-${{ github.run_number }}
           path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
-
-    outputs:
-      LAMBDA_ARTIFACT_NAME: ${{ steps.construct-lambda-artifact-name.outputs.name }}
