@@ -64,7 +64,7 @@ jobs:
 
           echo "Adding source code to the package."
           (
-            zip -q -g target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+            zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
           )
 
           echo "Created artifact."
