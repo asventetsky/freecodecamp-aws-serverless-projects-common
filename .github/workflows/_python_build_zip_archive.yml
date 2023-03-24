@@ -47,7 +47,6 @@ jobs:
       - name: "🔍 run build"
         run: |
           APP="${{ inputs.application }}"
-          LAMBDA_SOURCE_DIR="${{ inputs.lambda-source-dir }}"
           FILES_FOLDERS_TO_ADD="${{ inputs.files-folders-to-add }}"
           LAMBDA_ARTIFACT_NAME="${{ steps.construct-lambda-artifact-name.outputs.name }}"
 
@@ -63,9 +62,7 @@ jobs:
           )
 
           echo "Adding source code to the package."
-          (
-            zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
-          )
+          zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
 
           echo "Created artifact."
           ls -l target/"${LAMBDA_ARTIFACT_NAME}"
