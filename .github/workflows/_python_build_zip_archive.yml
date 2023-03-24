@@ -64,7 +64,6 @@ jobs:
 
           echo "Adding source code to the package."
           (
-            cd $LAMBDA_SOURCE_DIR || exit
             zip -q -g ../target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
           )
 
