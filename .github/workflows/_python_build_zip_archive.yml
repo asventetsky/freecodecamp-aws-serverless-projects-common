@@ -4,7 +4,7 @@ on:
       application:
         required: true
         type: string
-      lambda-source-dir:
+      lambda-name:
         required: true
         type: string
       files-folders-to-add:
@@ -41,7 +41,7 @@ jobs:
       - name: "🔧 construct lambda artifact name"
         id: construct-lambda-artifact-name
         run: |
-          LAMBDA_ARTIFACT_NAME=lambda-${{ inputs.lambda-source-dir }}-${{ github.run_number }}.zip
+          LAMBDA_ARTIFACT_NAME=${{ inputs.lambda-name }}-${{ github.run_number }}.zip
           echo "name=${LAMBDA_ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: "🔍 run build"
@@ -70,5 +70,5 @@ jobs:
       - name: "💾 save lambda artifact"
         uses: actions/cache@v3
         with:
-          key: lambda-${{ inputs.lambda-source-dir }}-${{ github.run_number }}
+          key: ${{ steps.construct-lambda-artifact-name.outputs.name }}
           path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
