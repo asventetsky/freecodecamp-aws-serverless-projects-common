@@ -19,13 +19,13 @@ on:
 jobs:
   deploy:
     name: Deploy application ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
     steps:
-
       - name: "☁️ checkout repository"
         uses: actions/checkout@v3
 
