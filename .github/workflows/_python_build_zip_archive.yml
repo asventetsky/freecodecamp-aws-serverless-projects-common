@@ -71,4 +71,4 @@ jobs:
         uses: actions/cache@v3
         with:
           key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/target/*
+          path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
