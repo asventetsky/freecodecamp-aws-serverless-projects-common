@@ -4,7 +4,7 @@ on:
       application:
         required: true
         type: string
-      lambda-artifact-name:
+      common-vars:
         required: true
         type: string
       environment:
@@ -53,7 +53,7 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-          (echo ""; echo "lambda_artifact_name: \"${{ inputs.lambda-artifact-name }}\"") >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
+          ${{ inputs.common-vars }} >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
           echo "Content of common_vars.yaml:"
           cat ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
 
