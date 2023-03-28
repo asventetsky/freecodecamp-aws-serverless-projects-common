@@ -53,7 +53,7 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-          ${{ inputs.common-vars }} >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
+          echo "${{ inputs.common-vars }}" >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
           echo "Content of common_vars.yaml:"
           cat ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
 
