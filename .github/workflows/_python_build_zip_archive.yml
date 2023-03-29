@@ -38,6 +38,13 @@ jobs:
           path: ./${{ inputs.application }}/source/venv
           fail-on-cache-miss: true
 
+      - name: "💾 fetch lambda artifacts (if exist)"
+        uses: actions/cache@v3
+        with:
+          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
+          path: ./${{ inputs.application }}/source/target
+          fail-on-cache-miss: true
+
       - name: "🔧 construct lambda artifact name"
         id: construct-lambda-artifact-name
         run: |
