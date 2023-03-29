@@ -59,7 +59,7 @@ jobs:
           cd "${APP}"/source || exit
 
           echo "Creating a directory for artifact."
-          mkdir target
+          mkdir -p target
 
           echo "Creating a package with dependencies."
           (
