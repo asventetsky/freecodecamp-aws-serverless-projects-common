@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v3
         with:
           key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/target/*
+          path: ./${{ inputs.application }}/source/target
           fail-on-cache-miss: true
 
       - name: "🔧 install terraform 1.3.8"
