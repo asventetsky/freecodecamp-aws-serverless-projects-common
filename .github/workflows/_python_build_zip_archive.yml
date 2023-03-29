@@ -38,12 +38,6 @@ jobs:
           path: ./${{ inputs.application }}/source/venv
           fail-on-cache-miss: true
 
-      - name: "💾 fetch lambda artifacts (if exist)"
-        uses: actions/cache@v3
-        with:
-          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/target
-
       - name: "🔧 construct lambda artifact name"
         id: construct-lambda-artifact-name
         run: |
@@ -59,7 +53,7 @@ jobs:
           cd "${APP}"/source || exit
 
           echo "Creating a directory for artifact."
-          mkdir -p target
+          mkdir target
 
           echo "Creating a package with dependencies."
           (
@@ -76,5 +70,5 @@ jobs:
       - name: "💾 save lambda artifact"
         uses: actions/cache@v3
         with:
-          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/target
+          key: ${{ steps.construct-lambda-artifact-name.outputs.name }}
+          path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
