@@ -37,7 +37,7 @@ jobs:
 
       - name: "🔍 run build"
         run: |
-          cd "${APP}"/source || exit
+          cd "${{ inputs.application }}"/source || exit
 
           echo "Creating a directory for artifact."
           mkdir target
