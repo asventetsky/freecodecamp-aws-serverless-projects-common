@@ -53,7 +53,13 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-          (echo ""; echo "${{ inputs.lambdas-common-vars }}") >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
+          LAMBDAS_ARRAY=($(echo ${{ inputs.lambdas-common-vars }} | tr ";" "\n"))
+
+          for i in "${LAMBDAS_ARRAY[@]}"
+          do
+            (echo ""; echo "$i") >> ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
+          done
+
           echo "Content of common_vars.yaml"
           cat ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
 

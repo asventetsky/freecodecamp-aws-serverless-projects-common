@@ -53,7 +53,7 @@ jobs:
 
             LAMBDA_NAME=${LAMBDA_ARRAY[0]}
             LAMBDA_ARTIFACT_NAME="$LAMBDA_NAME-${{ github.run_number }}.zip"
-            LAMBDAS_COMMON_VARS+="$LAMBDA_NAME=$LAMBDA_ARTIFACT_NAME;"
+            LAMBDAS_COMMON_VARS+="$LAMBDA_NAME: \"$LAMBDA_ARTIFACT_NAME\";"
 
             FILES_FOLDERS_TO_ADD=$(echo ${LAMBDA_ARRAY[1]} | tr ',' ' ')
 
