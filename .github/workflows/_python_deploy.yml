@@ -53,7 +53,7 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-          LAMBDAS_ARRAY=($(echo ${{ inputs.lambdas-common-vars }} | tr ";" "\n"))
+          LAMBDAS_ARRAY=$((echo ${{ inputs.lambdas-common-vars }}) | tr ";" "\n")
 
           for i in "${LAMBDAS_ARRAY[@]}"
           do
