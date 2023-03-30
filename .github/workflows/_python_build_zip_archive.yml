@@ -44,7 +44,7 @@ jobs:
 
           LAMBDAS_WITH_DEPENDANT_MODULES="${{ inputs.lambdas-with-dependant-modules }}"
 
-          LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr " " "\n"))
+          LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr ";" "\n"))
 
           for i in "${LAMBDAS_ARRAY[@]}"
           do
@@ -75,5 +75,5 @@ jobs:
       - name: "💾 save lambda artifacts"
         uses: actions/cache@v3
         with:
-          key: ${{ steps.construct-lambda-artifact-name.outputs.name }}
+          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
           path: ./${{ inputs.application }}/source/target
