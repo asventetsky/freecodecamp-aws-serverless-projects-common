@@ -8,9 +8,9 @@ on:
         required: true
         type: string
     outputs:
-      lambda-artifact-name:
-        description: "Constructed name of the lambda artifact"
-        value: ${{ jobs.build.outputs.lambda-artifact-name }}
+      lambdas-common-vars:
+        description: "Constructed variable of lambda artifacts (lambda name -> lambda artifact name)"
+        value: ${{ jobs.build.outputs.lambdas-common-vars }}
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
-      lambda-artifact-name: ${{ steps.construct-lambda-artifact-name.outputs.name }}
+      lambdas-common-vars: ${{ steps.build.outputs.lambdas-common-vars }}
     steps:
       - name: "☁️ checkout repository"
         uses: actions/checkout@v3
@@ -36,6 +36,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: "🔍 run build"
+        id: build
         run: |
           cd "${{ inputs.application }}"/source || exit
 
@@ -43,20 +44,18 @@ jobs:
           mkdir target
 
           LAMBDAS_WITH_DEPENDANT_MODULES="${{ inputs.lambdas-with-dependant-modules }}"
-
           LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr ";" "\n"))
 
+          LAMBDAS_COMMON_VARS=''
           for i in "${LAMBDAS_ARRAY[@]}"
           do
-            # echo $i
             LAMBDA_ARRAY=($(echo $i | tr "=" "\n"))
+
             LAMBDA_NAME=${LAMBDA_ARRAY[0]}
+            LAMBDA_ARTIFACT_NAME="$LAMBDA_NAME-${{ github.run_number }}.zip"
+            LAMBDAS_COMMON_VARS+="$LAMBDA_NAME=$LAMBDA_ARTIFACT_NAME;"
 
             FILES_FOLDERS_TO_ADD=$(echo ${LAMBDA_ARRAY[1]} | tr ',' ' ')
-            LAMBDA_ARTIFACT_NAME="$LAMBDA_NAME-${{ github.run_number }}.zip"
-
-            echo "FILES_FOLDERS_TO_ADD=$FILES_FOLDERS_TO_ADD"
-            echo "LAMBDA_ARTIFACT_NAME=$LAMBDA_ARTIFACT_NAME"
 
             echo "Creating a package with dependencies."
             (
@@ -72,7 +71,9 @@ jobs:
 
           done
 
-      - name: "💾 save lambda artifacts"
+          echo "lambdas-common-vars=${LAMBDAS_COMMON_VARS}" >> "$GITHUB_OUTPUT"
+
+      - name: "💾 save lambdas artifacts"
         uses: actions/cache@v3
         with:
           key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
