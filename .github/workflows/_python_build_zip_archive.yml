@@ -4,10 +4,7 @@ on:
       application:
         required: true
         type: string
-      lambda-name:
-        required: true
-        type: string
-      files-folders-to-add:
+      lambdas-with-dependant-modules:
         required: true
         type: string
     outputs:
@@ -38,37 +35,45 @@ jobs:
           path: ./${{ inputs.application }}/source/venv
           fail-on-cache-miss: true
 
-      - name: "🔧 construct lambda artifact name"
-        id: construct-lambda-artifact-name
-        run: |
-          LAMBDA_ARTIFACT_NAME=${{ inputs.lambda-name }}-${{ github.run_number }}.zip
-          echo "name=${LAMBDA_ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
-
       - name: "🔍 run build"
         run: |
-          APP="${{ inputs.application }}"
-          FILES_FOLDERS_TO_ADD="${{ inputs.files-folders-to-add }}"
-          LAMBDA_ARTIFACT_NAME="${{ steps.construct-lambda-artifact-name.outputs.name }}"
-
           cd "${APP}"/source || exit
 
           echo "Creating a directory for artifact."
           mkdir target
 
-          echo "Creating a package with dependencies."
-          (
-            cd venv/lib/python3.9/site-packages/ || exit
-            zip -q -r ../../../../target/"${LAMBDA_ARTIFACT_NAME}" .
-          )
+          LAMBDAS_WITH_DEPENDANT_MODULES="${{ inputs.lambdas-with-dependant-modules }}"
 
-          echo "Adding source code to the package."
-          zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+          LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr " " "\n"))
 
-          echo "Created artifact."
-          ls -l target/"${LAMBDA_ARTIFACT_NAME}"
+          for i in "${LAMBDAS_ARRAY[@]}"
+          do
+            # echo $i
+            LAMBDA_ARRAY=($(echo $i | tr "=" "\n"))
+            LAMBDA_NAME=${LAMBDA_ARRAY[0]}
 
-      - name: "💾 save lambda artifact"
+            FILES_FOLDERS_TO_ADD=$(echo ${LAMBDA_ARRAY[1]} | tr ',' ' ')
+            LAMBDA_ARTIFACT_NAME="$LAMBDA_NAME-${{ github.run_number }}.zip"
+
+            echo "FILES_FOLDERS_TO_ADD=$FILES_FOLDERS_TO_ADD"
+            echo "LAMBDA_ARTIFACT_NAME=$LAMBDA_ARTIFACT_NAME"
+
+            echo "Creating a package with dependencies."
+            (
+              cd venv/lib/python3.9/site-packages/ || exit
+              zip -q -r ../../../../target/"${LAMBDA_ARTIFACT_NAME}" .
+            )
+
+            echo "Adding source code to the package."
+            zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+
+            echo "Created artifact."
+            ls -l target/"${LAMBDA_ARTIFACT_NAME}"
+
+          done
+
+      - name: "💾 save lambda artifacts"
         uses: actions/cache@v3
         with:
           key: ${{ steps.construct-lambda-artifact-name.outputs.name }}
-          path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
+          path: ./${{ inputs.application }}/source/target
