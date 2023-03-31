@@ -4,16 +4,13 @@ on:
       application:
         required: true
         type: string
-      lambda-name:
-        required: true
-        type: string
-      files-folders-to-add:
+      lambdas-with-dependant-modules:
         required: true
         type: string
     outputs:
-      lambda-artifact-name:
-        description: "Constructed name of the lambda artifact"
-        value: ${{ jobs.build.outputs.lambda-artifact-name }}
+      lambdas-common-vars:
+        description: "Constructed variable of lambda artifacts (lambda name -> lambda artifact name)"
+        value: ${{ jobs.build.outputs.lambdas-common-vars }}
 
 jobs:
   build:
@@ -21,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
-      lambda-artifact-name: ${{ steps.construct-lambda-artifact-name.outputs.name }}
+      lambdas-common-vars: ${{ steps.build.outputs.lambdas-common-vars }}
     steps:
       - name: "☁️ checkout repository"
         uses: actions/checkout@v3
@@ -38,37 +35,46 @@ jobs:
           path: ./${{ inputs.application }}/source/venv
           fail-on-cache-miss: true
 
-      - name: "🔧 construct lambda artifact name"
-        id: construct-lambda-artifact-name
-        run: |
-          LAMBDA_ARTIFACT_NAME=${{ inputs.lambda-name }}-${{ github.run_number }}.zip
-          echo "name=${LAMBDA_ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
-
       - name: "🔍 run build"
+        id: build
         run: |
-          APP="${{ inputs.application }}"
-          FILES_FOLDERS_TO_ADD="${{ inputs.files-folders-to-add }}"
-          LAMBDA_ARTIFACT_NAME="${{ steps.construct-lambda-artifact-name.outputs.name }}"
-
-          cd "${APP}"/source || exit
+          cd "${{ inputs.application }}"/source || exit
 
           echo "Creating a directory for artifact."
           mkdir target
 
-          echo "Creating a package with dependencies."
-          (
-            cd venv/lib/python3.9/site-packages/ || exit
-            zip -q -r ../../../../target/"${LAMBDA_ARTIFACT_NAME}" .
-          )
+          LAMBDAS_WITH_DEPENDANT_MODULES="${{ inputs.lambdas-with-dependant-modules }}"
+          LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr ";" "\n"))
 
-          echo "Adding source code to the package."
-          zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+          LAMBDAS_COMMON_VARS=''
+          for i in "${LAMBDAS_ARRAY[@]}"
+          do
+            LAMBDA_ARRAY=($(echo $i | tr "=" "\n"))
 
-          echo "Created artifact."
-          ls -l target/"${LAMBDA_ARTIFACT_NAME}"
+            LAMBDA_NAME=${LAMBDA_ARRAY[0]}
+            LAMBDA_ARTIFACT_NAME="$LAMBDA_NAME-${{ github.run_number }}.zip"
+            LAMBDAS_COMMON_VARS+="${LAMBDA_NAME}_artifact_name: \"$LAMBDA_ARTIFACT_NAME\";"
 
-      - name: "💾 save lambda artifact"
+            FILES_FOLDERS_TO_ADD=$(echo ${LAMBDA_ARRAY[1]} | tr ',' ' ')
+
+            echo "Creating a package with dependencies."
+            (
+              cd venv/lib/python3.9/site-packages/ || exit
+              zip -q -r ../../../../target/"${LAMBDA_ARTIFACT_NAME}" .
+            )
+
+            echo "Adding source code to the package."
+            zip -q -g -r target/"${LAMBDA_ARTIFACT_NAME}" $FILES_FOLDERS_TO_ADD
+
+            echo "Created artifact."
+            ls -l target/"${LAMBDA_ARTIFACT_NAME}"
+
+          done
+
+          echo "lambdas-common-vars=${LAMBDAS_COMMON_VARS}" >> "$GITHUB_OUTPUT"
+
+      - name: "💾 save lambdas artifacts"
         uses: actions/cache@v3
         with:
-          key: ${{ steps.construct-lambda-artifact-name.outputs.name }}
-          path: ./${{ inputs.application }}/source/target/${{ steps.construct-lambda-artifact-name.outputs.name }}
+          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
+          path: ./${{ inputs.application }}/source/target
