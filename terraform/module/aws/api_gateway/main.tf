@@ -14,7 +14,7 @@ resource "aws_api_gateway_method" "app" {
   for_each = var.integrations
 
   rest_api_id = aws_api_gateway_rest_api.app.id
-  resource_id = aws_api_gateway_resource.app.id
+  resource_id = aws_api_gateway_resource.app[each.key].id
   http_method = each.value.method
   authorization = "NONE"
 }
