@@ -4,9 +4,6 @@ on:
       application:
         required: true
         type: string
-      lambdas-with-dependant-modules:
-        required: true
-        type: string
     outputs:
       lambdas-common-vars:
         description: "Constructed variable of lambda artifacts (lambda name -> lambda artifact name)"
@@ -41,11 +38,9 @@ jobs:
           cd "${{ inputs.application }}"/source || exit
 
           echo "Creating a directory for artifact."
-          mkdir target
+          mkdir -p target
 
-          LAMBDAS_WITH_DEPENDANT_MODULES="${{ inputs.lambdas-with-dependant-modules }}"
-          LAMBDAS_ARRAY=($(echo $LAMBDAS_WITH_DEPENDANT_MODULES | tr ";" "\n"))
-
+          LAMBDAS_ARRAY=($(cat lambda_modules.txt))
           LAMBDAS_COMMON_VARS=''
           for i in "${LAMBDAS_ARRAY[@]}"
           do
