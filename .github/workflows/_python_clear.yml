@@ -65,4 +65,4 @@ jobs:
           cat ./${{ inputs.application }}/infrastructure/environments/common_vars.yaml
 
       - name: "🔍 run terragrunt destroy"
-        cd ${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }} && terragrunt init --terragrunt-non-interactive && terragrunt destroy -auto-approve
+        run: cd ${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }} && terragrunt init --terragrunt-non-interactive && terragrunt destroy -auto-approve
