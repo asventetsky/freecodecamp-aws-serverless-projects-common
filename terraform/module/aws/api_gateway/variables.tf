@@ -1,9 +1,14 @@
 variable "api_gateway_name" {}
 
+variable "cognito_auth" {
+  description = "Enable Cognito Authorization for API Gateway"
+  type = bool
+}
+
 variable "stage" {}
 
 variable "integrations" {
-  description = "List of API gateway routes with integrations"
+  description = "List of API Gateway routes with integrations"
   type        = map(object({
     method = string
     path_part = string

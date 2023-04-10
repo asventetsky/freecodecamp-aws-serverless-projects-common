@@ -2,6 +2,56 @@ resource "aws_api_gateway_rest_api" "this" {
   name = var.api_gateway_name
 }
 
+#=======================#
+# Cognito configuration #
+#=======================#
+resource "aws_cognito_user_pool" "this" {
+  count = var.cognito_auth ? 1 : 0
+
+  name = "${aws_api_gateway_rest_api.this.name}-user-pool"
+
+  alias_attributes           = ["email"]
+  auto_verified_attributes   = ["email"]
+
+  password_policy {
+    minimum_length = 8
+  }
+
+  schema {
+    attribute_data_type = "String"
+    developer_only_attribute = false
+    mutable = true
+    name = "email"
+    required = true
+  }
+
+  verification_message_template {
+    email_subject_by_link = "Email Address Verification Request for ${var.api_gateway_name}"
+    email_message_by_link = "We have received a request to authorize this email address for use with ${var.api_gateway_name}. If you requested this verification, please go to the following URL to confirm that you are authorized to use this email address:\n{##Click Here##}"
+  }
+}
+
+resource "aws_cognito_user_pool_client" "this" {
+  count = var.cognito_auth ? 1 : 0
+
+  name = "${aws_api_gateway_rest_api.this.name}-user-pool-client"
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH"
+  ]
+  user_pool_id = aws_cognito_user_pool.this[0].id
+}
+
+resource "aws_api_gateway_authorizer" "this" {
+  count = var.cognito_auth ? 1 : 0
+
+  name          = "${aws_api_gateway_rest_api.this.name}-user-pool-authorizer"
+  type          = "COGNITO_USER_POOLS"
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  provider_arns = [aws_cognito_user_pool.this[0].arn]
+}
+
 resource "aws_api_gateway_deployment" "this" {
   depends_on = [aws_api_gateway_integration.this]
 
@@ -35,7 +85,9 @@ resource "aws_api_gateway_method" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
   resource_id = aws_api_gateway_resource.this[each.key].id
   http_method = each.value.method
-  authorization = "NONE"
+
+  authorization = var.cognito_auth ? "COGNITO_USER_POOLS" : "NONE"
+  authorizer_id = var.cognito_auth ? aws_api_gateway_authorizer.this[0].id : null
 }
 
 resource "aws_lambda_permission" "this" {
