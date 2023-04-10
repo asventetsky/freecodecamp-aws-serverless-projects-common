@@ -37,7 +37,7 @@ resource "aws_cognito_user_pool_client" "this" {
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH"
   ]
-  user_pool_id = aws_cognito_user_pool.this.id
+  user_pool_id = aws_cognito_user_pool.this[0].id
 }
 
 resource "aws_api_gateway_authorizer" "this" {
@@ -46,7 +46,7 @@ resource "aws_api_gateway_authorizer" "this" {
   name          = "${aws_api_gateway_rest_api.this.name}-user-pool-authorizer"
   type          = "COGNITO_USER_POOLS"
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  provider_arns = aws_cognito_user_pool.this.arn
+  provider_arns = aws_cognito_user_pool.this[0].arn
 }
 
 resource "aws_api_gateway_deployment" "this" {
