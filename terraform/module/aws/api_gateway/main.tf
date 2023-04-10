@@ -2,6 +2,9 @@ resource "aws_api_gateway_rest_api" "this" {
   name = var.api_gateway_name
 }
 
+#=======================#
+# Cognito configuration #
+#=======================#
 resource "aws_cognito_user_pool" "this" {
   count = var.cognito_auth ? 1 : 0
 
