@@ -84,7 +84,7 @@ resource "aws_api_gateway_method" "this" {
   http_method = each.value.method
 
   authorization = var.cognito_auth ? "COGNITO_USER_POOLS" : "NONE"
-  authorizer_id = var.cognito_auth ? aws_api_gateway_authorizer.this.id : null
+  authorizer_id = var.cognito_auth ? aws_api_gateway_authorizer.this[0].id : null
 }
 
 resource "aws_lambda_permission" "this" {
