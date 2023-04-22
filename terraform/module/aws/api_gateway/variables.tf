@@ -10,8 +10,6 @@ variable "stage" {}
 variable "integrations" {
   description = "List of API Gateway routes with integrations"
   type        = map(object({
-    method = string
-    path_part = string
     lambda_invoke_arn = string
     lambda_function_name = string
   }))
