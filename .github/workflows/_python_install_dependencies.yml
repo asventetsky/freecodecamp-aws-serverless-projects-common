@@ -4,6 +4,9 @@ on:
       application:
         required: true
         type: string
+      source-dir:
+        required: true
+        type: string
 
 jobs:
   install-dependencies:
@@ -21,7 +24,7 @@ jobs:
 
       - name: "📦 install dependencies"
         run: |
-          SOURCE_DIR="${{ inputs.application }}/source"
+          SOURCE_DIR="${{ inputs.application }}/${{ inputs.source-dir }}"
 
           cd $SOURCE_DIR || exit
 
@@ -36,4 +39,4 @@ jobs:
         uses: actions/cache@v3
         with:
           key: ${{ inputs.application }}-dependencies-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/venv
+          path: ./${{ inputs.application }}/${{ inputs.source-dir }}/venv
