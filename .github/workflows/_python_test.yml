@@ -4,6 +4,9 @@ on:
       application:
         required: true
         type: string
+      source-dir:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -23,8 +26,8 @@ jobs:
         uses: actions/cache@v3
         with:
           key: ${{ inputs.application }}-dependencies-${{ github.run_number }}
-          path: ./${{ inputs.application }}/source/venv
+          path: ./${{ inputs.application }}/${{ inputs.source-dir }}/venv
           fail-on-cache-miss: true
 
       - name: "🔍 run tests"
-        run: cd ${{ inputs.application }}/source && source venv/bin/activate && python3 -m unittest discover tests
+        run: cd ${{ inputs.application }}/${{ inputs.source-dir }} && source venv/bin/activate && python3 -m unittest discover tests
