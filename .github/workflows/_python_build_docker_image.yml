@@ -38,12 +38,12 @@ jobs:
       - name: "🔍 run build"
         id: build
         run: |
-          AWS_REGION=$1
-          REPOSITORY_URI=$2
           TERRAGRUNT_ENV_VARS_PATH=$3
-          ECR_ACCOUNT=${REPOSITORY_URI%/*}
 
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_ACCOUNT || exit
+          cd ${{ inputs.application }}/${{ inputs.source-dir }} || exit
+
+          echo "Creating a directory for artifact."
+          mkdir -p target
 
           LAMBDAS_SPEC=$(cat lambdas_spec.txt)
 
@@ -73,8 +73,7 @@ jobs:
             cp -r $LAMBDA_MODULES $ARTIFACT_DIRECTORY
 
             docker build -t "$LAMBDA_NAME:$LAMBDA_VERSION" -f "$LAMBDA_NAME/Dockerfile" --build-arg lambda_source_dir=$ARTIFACT_DIRECTORY .
-            docker tag "${LAMBDA_NAME}:${LAMBDA_VERSION}" "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
-            docker push "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
+            docker save "$LAMBDA_NAME:$LAMBDA_VERSION" > target/"${LAMBDA_ARTIFACT_NAME}"/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
 
             echo "Removing artifact directory '$ARTIFACT_DIRECTORY'"
             rm -rf $ARTIFACT_DIRECTORY
@@ -89,3 +88,9 @@ jobs:
           do
             (echo ""; echo "$i") >> $TERRAGRUNT_ENV_VARS_PATH
           done
+
+      - name: "💾 save lambdas docker images"
+        uses: actions/cache@v3
+        with:
+          key: ${{ inputs.application }}-artifacts-${{ github.run_number }}
+          path: ./${{ inputs.application }}/${{ inputs.source-dir }}/target
