@@ -71,15 +71,13 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-          cd ${{ inputs.application }}/${{ inputs.source-dir }} || exit
-
           AWS_REGION=${{ env.AWS_REGION }}
           REPOSITORY_URI=${{ env.AWS_REPOSITORY_URI }}
           ECR_ACCOUNT=${REPOSITORY_URI%/*}
 
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_ACCOUNT || exit
 
-          LAMBDAS_SPEC=$(cat lambdas_spec.txt)
+          LAMBDAS_SPEC=$(cat ${{ inputs.application }}/${{ inputs.source-dir }/lambdas_spec.txt)
 
           LAMBDAS_ENV_VARS=''
           for lambda_spec in ${LAMBDAS_SPEC[@]}
@@ -94,7 +92,7 @@ jobs:
 
             LAMBDAS_ENV_VARS+="${LAMBDA_NAME}_version: \"${LAMBDA_VERSION}\";"
 
-            docker load --input target/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
+            docker load --input ${{ inputs.application }}/${{ inputs.source-dir }/target/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
             docker tag "${LAMBDA_NAME}:${LAMBDA_VERSION}" "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
             docker push "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
           done
