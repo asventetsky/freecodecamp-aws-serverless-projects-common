@@ -50,10 +50,10 @@ jobs:
           ls -l /usr/local/bin
           terragrunt --version
 
-      - name: "📦 prepare common_vars file for terragrunt"
+      - name: "🔧 set environment variables"
         run: |
-
           echo "Setting AWS keys."
+
           aws_access_key_id=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_access_key_id_.*' | sed 's/aws_access_key_id_${{ inputs.environment }}=//g')
           echo "::add-mask::$aws_access_key_id"
           echo "AWS_ACCESS_KEY_ID=$aws_access_key_id" >> "$GITHUB_ENV"
@@ -62,8 +62,17 @@ jobs:
           echo "::add-mask::$aws_secret_access_key"
           echo "AWS_SECRET_ACCESS_KEY=$aws_secret_access_key" >> "$GITHUB_ENV"
 
-          AWS_REGION=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_region_.*' | sed 's/aws_region_${{ inputs.environment }}=//g')
-          REPOSITORY_URI=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_repository_uri_.*' | sed 's/aws_repository_uri_${{ inputs.environment }}=//g')
+          aws_region=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_region_.*' | sed 's/aws_region_${{ inputs.environment }}=//g')
+          echo "AWS_REGION=$aws_region" >> "$GITHUB_ENV"
+
+          aws_repository_uri=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_repository_uri_.*' | sed 's/aws_repository_uri_${{ inputs.environment }}=//g')
+          echo "AWS_REPOSITORY_URI=$aws_repository_uri" >> "$GITHUB_ENV"
+
+
+      - name: "📦 prepare common_vars file for terragrunt"
+        run: |
+          AWS_REGION=${{ env.AWS_REGION }}
+          REPOSITORY_URI=${{ env.AWS_REPOSITORY_URI }}
           ECR_ACCOUNT=${REPOSITORY_URI%/*}
 
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_ACCOUNT || exit
