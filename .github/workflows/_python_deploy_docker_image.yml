@@ -56,8 +56,8 @@ jobs:
           echo "Printin file content."
           cat ./env_vars_${{ inputs.environment }}.txt
 
-          AWS_REGION=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_region' | sed 's/aws_region_${{ inputs.environment }}=//g')
-          REPOSITORY_URI=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_repository_uri' | sed 's/aws_repository_uri_${{ inputs.environment }}=//g')
+          AWS_REGION=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_region_.*' | sed 's/aws_region_${{ inputs.environment }}=//g')
+          REPOSITORY_URI=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_repository_uri_.*' | sed 's/aws_repository_uri_${{ inputs.environment }}=//g')
           ECR_ACCOUNT=${REPOSITORY_URI%/*}
 
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_ACCOUNT || exit
