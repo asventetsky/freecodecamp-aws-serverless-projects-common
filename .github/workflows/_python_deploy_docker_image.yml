@@ -52,14 +52,6 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
-#          echo "Setting AWS keys."
-#          aws_access_key_id=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_access_key_id' | sed 's/aws_access_key_id_${{ inputs.environment }}=//g')
-#          echo "::add-mask::$aws_access_key_id"
-#          echo "AWS_ACCESS_KEY_ID=$aws_access_key_id" >> $GITHUB_ENV
-#
-#          aws_secret_access_key=$(grep -rw './env_vars_${{ inputs.environment }}.txt' -e 'aws_secret_access_key' | sed 's/aws_secret_access_key_${{ inputs.environment }}=//g')
-#          echo "::add-mask::$aws_secret_access_key"
-#          echo "AWS_SECRET_ACCESS_KEY=$aws_secret_access_key" >> $GITHUB_ENV
 
           echo "Printin file content."
           cat ./env_vars_${{ inputs.environment }}.txt
