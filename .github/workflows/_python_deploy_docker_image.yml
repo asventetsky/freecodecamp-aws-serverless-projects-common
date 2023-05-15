@@ -71,6 +71,8 @@ jobs:
 
       - name: "📦 prepare common_vars file for terragrunt"
         run: |
+          cd ${{ inputs.application }}/${{ inputs.source-dir }} || exit
+
           AWS_REGION=${{ env.AWS_REGION }}
           REPOSITORY_URI=${{ env.AWS_REPOSITORY_URI }}
           ECR_ACCOUNT=${REPOSITORY_URI%/*}
