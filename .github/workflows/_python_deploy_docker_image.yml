@@ -105,11 +105,11 @@ jobs:
 
           for i in "${LAMBDAS_ENV_VARS_ARRAY[@]}"
           do
-            (echo ""; echo "$i") >> ./${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }}/common_vars.yaml
+            (echo ""; echo "$i") >> ./${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }}/env_vars.yaml
           done
 
           echo "Content of env_vars.yaml"
-          cat ./${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }}/common_vars.yaml
+          cat ./${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }}/env_vars.yaml
 
       - name: "🔍 run terragrunt init and terragrunt apply"
         run: cd ${{ inputs.application }}/infrastructure/environments/${{ inputs.environment }} && terragrunt init --terragrunt-non-interactive && terragrunt apply -auto-approve
