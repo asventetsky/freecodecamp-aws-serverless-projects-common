@@ -88,7 +88,7 @@ jobs:
             LAMBDA_SPEC=($(echo "$lambda_spec" | tr "=" " "))
             LAMBDA_NAME_AND_VERSION=($(echo "${LAMBDA_SPEC[0]}" | tr ":" " "))
             LAMBDA_NAME=${LAMBDA_NAME_AND_VERSION[0]}
-            LAMBDA_VERSION="${LAMBDA_NAME_AND_VERSION[1]}-local"
+            LAMBDA_VERSION="${LAMBDA_NAME_AND_VERSION[1]}"
             echo "LAMBDA_NAME=$LAMBDA_NAME"
             echo "LAMBDA_VERSION=$LAMBDA_VERSION"
 
