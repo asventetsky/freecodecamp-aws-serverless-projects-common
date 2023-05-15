@@ -94,7 +94,7 @@ jobs:
 
             LAMBDAS_ENV_VARS+="${LAMBDA_NAME}_version: \"${LAMBDA_VERSION}\";"
 
-            docker load --input target/"${LAMBDA_ARTIFACT_NAME}"/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
+            docker load --input target/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
             docker tag "${LAMBDA_NAME}:${LAMBDA_VERSION}" "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
             docker push "${REPOSITORY_URI}:${LAMBDA_NAME}_${LAMBDA_VERSION}"
           done

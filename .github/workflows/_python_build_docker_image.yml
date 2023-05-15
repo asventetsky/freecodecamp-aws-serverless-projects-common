@@ -62,7 +62,7 @@ jobs:
             cp -r $LAMBDA_MODULES $ARTIFACT_DIRECTORY
 
             docker build -t "$LAMBDA_NAME:$LAMBDA_VERSION" -f "$LAMBDA_NAME/Dockerfile" --build-arg lambda_source_dir=$ARTIFACT_DIRECTORY .
-            docker save "$LAMBDA_NAME:$LAMBDA_VERSION" > target/"${LAMBDA_ARTIFACT_NAME}"/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
+            docker save "$LAMBDA_NAME:$LAMBDA_VERSION" > target/"$LAMBDA_NAME:$LAMBDA_VERSION".tar
 
             echo "Removing artifact directory '$ARTIFACT_DIRECTORY'"
             rm -rf $ARTIFACT_DIRECTORY
